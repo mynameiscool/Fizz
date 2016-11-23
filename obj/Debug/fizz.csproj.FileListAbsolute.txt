@@ -1,0 +1,13 @@
+C:\Users\Jeremy\Desktop\fizz\bin\Release\FishFishFish.exe.config
+C:\Users\Jeremy\Desktop\fizz\bin\Release\FishFishFish.exe
+C:\Users\Jeremy\Desktop\fizz\bin\Release\FishFishFish.pdb
+C:\Users\Jeremy\Desktop\fizz\bin\Release\EloBuddy.dll
+C:\Users\Jeremy\Desktop\fizz\bin\Release\EloBuddy.Sandbox.dll
+C:\Users\Jeremy\Desktop\fizz\bin\Release\EloBuddy.SDK.dll
+C:\Users\Jeremy\Desktop\fizz\bin\Release\SharpDX.Direct3D9.dll
+C:\Users\Jeremy\Desktop\fizz\bin\Release\SharpDX.dll
+C:\Users\Jeremy\Desktop\fizz\bin\Release\SharpDX.XInput.dll
+C:\Users\Jeremy\Desktop\fizz\bin\Release\Newtonsoft.Json.dll
+C:\Users\Jeremy\Desktop\fizz\obj\Debug\fizz.csprojResolveAssemblyReference.cache
+C:\Users\Jeremy\Desktop\fizz\obj\Debug\FishFishFish.exe
+C:\Users\Jeremy\Desktop\fizz\obj\Debug\FishFishFish.pdb
