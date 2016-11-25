@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using EloBuddy;
 using EloBuddy.SDK;
@@ -10,33 +10,43 @@ using EloBuddy.SDK.Constants;
 using SharpDX;
 using Color = System.Drawing.Color;
 
-namespace Fizz_FishFishFish
+namespace FishFishFish
 {
-    internal class Program
+    internal class TheOner
     {
+        private static void Main(string[] args)
+        {
+            Loading.OnLoadingComplete += GameOnOnGameLoad;
+            CreateMenu();
+        }
+
         private static AIHeroClient Player
         {
             get { return ObjectManager.Player; }
         }
 
-        public static Menu Menu { get; set; }
-        private static Vector3? LastHarassPos { get; set; }
-        private static AIHeroClient DrawTarget { get; set; }
-        private static Geometry.Polygon.Rectangle RRectangle { get; set; }
-
-        private static Spell.Targeted Q;
-        private static Spell.Active W;
-        private static Spell.Skillshot E, R;
-
-
-        private static void Main(string[] args)
+        internal static bool Getcheckboxvalue(object miscMenu, string v)
         {
-            Loading.OnLoadingComplete += GameOnOnGameLoad;
+            throw new NotImplementedException();
         }
 
-        private static Menu comboMenu, harassMenu, miscMenu, drawMenu;
+        internal static float getCheckBoxItem(object laneclearMenu, string v)
+        {
+            throw new NotImplementedException();
+        }
 
-        private static void CreateMenu()
+        public static Menu Menu { get; set; }
+        public static Vector3? LastHarassPos { get; set; }
+        public static AIHeroClient DrawTarget { get; set; }
+        public static Geometry.Polygon.Rectangle RRectangle { get; set; }
+
+        public static Spell.Targeted Q;
+        public static Spell.Active W;
+        public static Spell.Skillshot E, R;
+
+        private static Menu comboMenu, harassMenu, laneclearMenu, miscMenu, drawMenu;
+
+        public static void CreateMenu()
         {
             Menu = MainMenu.AddMenu("Fizz", "Fish Fish Fish");
 
@@ -53,6 +63,12 @@ namespace Fizz_FishFishFish
             harassMenu.Add("UseWMixed", new CheckBox("UseW"));
             harassMenu.Add("UseEMixed", new CheckBox("UseE"));
             StringList(harassMenu, "UseEHarassMode", "E Mode: ", new[] { "Back to Position", "On Enemy" }, 1);
+
+            laneclearMenu = Menu.AddSubMenu("Lane Clear");
+            laneclearMenu.Add("UseQM", new CheckBox("UseQ"));
+            laneclearMenu.Add("UseW", new CheckBox("UseW"));
+            laneclearMenu.Add("UseE", new CheckBox("UseE"));
+            laneclearMenu.Add("mana", new Slider("Maximum mana usage in percent)", 50));
 
             miscMenu = Menu.AddSubMenu("Misc");
             StringList(miscMenu, "UseWWhen", "Use W", new[] { "Before Q", "After Q" }, 0);
@@ -75,6 +91,10 @@ namespace Fizz_FishFishFish
                     sender.DisplayName = displayName + ": " + values[args.NewValue];
                 };
         }
+        public static float LaneMana()
+        {
+            return laneclearMenu["laneclear"].Cast<Slider>().CurrentValue;
+        }
 
         private static bool Getcheckboxvalue(Menu menu, string menuvalue)
         {
@@ -90,8 +110,16 @@ namespace Fizz_FishFishFish
         {
             return menu[menuvalue].Cast<Slider>().CurrentValue;
         }
-
-        private static void GameOnOnGameLoad(EventArgs args)
+        static bool UseQ { get { return getCheckBoxItem(laneclearMenu, "useQ"); } }
+        static bool UseW { get { return getCheckBoxItem(laneclearMenu, "useW"); } }
+        static bool UseE { get { return getCheckBoxItem(laneclearMenu, "autoE"); } }
+        static bool UseR { get { return getCheckBoxItem(laneclearMenu, "useR"); } }
+        static bool ManaManager { get { return getCheckBoxItem(laneclearMenu, "manaManager"); } }
+        static bool getCheckBoxItem(Menu m, string item)
+        {
+            return m[item].Cast<CheckBox>().CurrentValue;
+        }
+        public static void GameOnOnGameLoad(EventArgs args)
         {
             if (Player.ChampionName != "Fizz")
             {
@@ -229,6 +257,9 @@ namespace Fizz_FishFishFish
                 case Orbwalker.ActiveModes.Combo:
                     DoCombo();
                     break;
+                case Orbwalker.ActiveModes.LaneClear:
+                    LaneMode();
+                    break;
             }
         }
 
@@ -324,7 +355,46 @@ namespace Fizz_FishFishFish
                 }
             }
         }
+        public static void LaneMode()
+        {
+            if (Player.ManaPercent > getCheckBoxItem("laneclearMenu", "mana") && W.IsReady() && Getcheckboxvalue("laneclearMenuMenu", "UseQ"))
+            {
+                var minion = EntityManager.MinionsAndMonsters.EnemyMinions.FirstOrDefault(m => m.IsValidTarget(W.Range) && Getcheckboxvalue("laneclearMenuMenu", "UseW"));
+                if (minion == null) return;
 
+                W.Cast();
+            }
+            if (Player.ManaPercent > getCheckBoxItem("laneclearMenu", "mana") && Q.IsReady())
+            {
+                var minion = EntityManager.MinionsAndMonsters.EnemyMinions.FirstOrDefault(m => m.IsValidTarget(Q.Range));
+                if (minion == null) return;
+
+                if (Q.IsInRange(minion) && minion.Health <= Player.GetSpellDamage(minion, Q.Slot))
+                    Q.Cast(minion);
+
+            }
+
+            if (Player.ManaPercent > getCheckBoxItem("laneclearMenu", "mana") && E.IsReady())
+            {
+                var minions = EntityManager.MinionsAndMonsters.GetLaneMinions()
+                    .Where(
+                    m => m.IsValidTarget(E.Range)).ToArray();
+                if (minions.Length == 0) return;
+
+                if (E.Name == "FizzJump")
+                {
+                    var castPos = Prediction.Position.PredictCircularMissileAoe(minions, E.Range, E.Width,
+                        E.CastDelay, E.Speed).OrderByDescending(r => r.GetCollisionObjects<Obj_AI_Minion>().Length).FirstOrDefault();
+
+                    if (castPos != null)
+                    {
+                        var predictMinion = castPos.GetCollisionObjects<Obj_AI_Minion>();
+
+                        E.Cast(castPos.CastPosition);
+                    }
+                }
+            }
+        }
         public static bool CanKillWithUltCombo(AIHeroClient target)
         {
             return Player.GetSpellDamage(target, SpellSlot.Q) + Player.GetSpellDamage(target, SpellSlot.W) + Player.GetSpellDamage(target, SpellSlot.R) >

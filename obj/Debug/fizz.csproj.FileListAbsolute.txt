@@ -11,3 +11,10 @@ C:\Users\Jeremy\Desktop\fizz\bin\Release\Newtonsoft.Json.dll
 C:\Users\Jeremy\Desktop\fizz\obj\Debug\fizz.csprojResolveAssemblyReference.cache
 C:\Users\Jeremy\Desktop\fizz\obj\Debug\FishFishFish.exe
 C:\Users\Jeremy\Desktop\fizz\obj\Debug\FishFishFish.pdb
+C:\Users\Jeremy\Desktop\fizz\Fizz\bin\Release\FishFishFish.exe.config
+C:\Users\Jeremy\Desktop\fizz\Fizz\obj\Debug\FishFishFish.exe
+C:\Users\Jeremy\Desktop\fizz\Fizz\obj\Debug\FishFishFish.pdb
+C:\Users\Jeremy\Desktop\fizz\Fizz\obj\Debug\fizz.csprojResolveAssemblyReference.cache
+C:\Users\Jeremy\Desktop\fizz\Fizz\bin\Release\FishFishFish.exe
+C:\Users\Jeremy\Desktop\fizz\Fizz\bin\Release\FishFishFish.pdb
+C:\Users\Jeremy\Desktop\fizz\Fizz\bin\Release\Newtonsoft.Json.dll

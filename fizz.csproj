@@ -60,12 +60,6 @@
     <Reference Include="EloBuddy.SDK">
       <HintPath>..\..\AppData\Roaming\EloBuddy\Addons\Libraries\EloBuddy.SDK.dll</HintPath>
     </Reference>
-    <Reference Include="LeagueSharp">
-      <HintPath>E:\Justin\Desktop\LeagueSharp\System\LeagueSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="LeagueSharp.Common">
-      <HintPath>E:\Justin\Desktop\LeagueSharp\System\LeagueSharp.Common.dll</HintPath>
-    </Reference>
     <Reference Include="SharpDX, Version=2.5.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\AppData\Roaming\EloBuddy\Addons\Libraries\SharpDX.dll</HintPath>
@@ -87,6 +81,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ManagerMenu.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
