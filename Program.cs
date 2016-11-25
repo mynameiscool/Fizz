@@ -294,7 +294,7 @@ namespace FishFishFish
                 return;
             }
 
-            if (Getcheckboxvalue(comboMenu, "UseREGapclose") && CanKillWithUltCombo(target) && Q.IsReady() && W.IsReady() &&
+            if (Getcheckboxvalue(comboMenu, "UseREGapclose") && Q.IsReady() && W.IsReady() &&
              E.IsReady() && R.IsReady() && (Player.Distance(target) < Q.Range + E.Range * 2))
             {
                 //CastRSmart(target);
@@ -304,55 +304,53 @@ namespace FishFishFish
                 W.Cast();
                 Q.Cast(target);
             }
-            else
+            else if (Q.IsReady() && R.IsReady() && Getcheckboxvalue(miscMenu, "QRCombo"))
             {
-                if (Q.IsReady() && R.IsReady() && Getcheckboxvalue(miscMenu, "QRCombo"))
+                Q.Cast(target);
+                CastR(target);
+            }
+
+            if (R.IsReady())
+            {
+                if (Player.GetSpellDamage(target, SpellSlot.R) > target.Health)
                 {
-                    Q.Cast(target);
+                    //CastRSmart(target);
                     CastR(target);
                 }
-                if (R.IsReady())
+
+                if (DamageToUnit(target) > target.Health)
                 {
-                    if (Player.GetSpellDamage(target, SpellSlot.R) > target.Health)
-                    {
-                        //CastRSmart(target);
-                        CastR(target);
-                    }
-
-                    if (DamageToUnit(target) > target.Health)
-                    {
-                        //CastRSmart(target);
-                        CastR(target);
-                    }
-
-                    if ((Q.IsReady() || E.IsReady()))
-                    {
-                        //CastRSmart(target);
-                        CastR(target);
-                    }
-
-                    if (Player.IsInAutoAttackRange(target))
-                    {
-                        //CastRSmart(target);
-                        CastR(target);
-                    }
+                    //CastRSmart(target);
+                    CastR(target);
                 }
 
-                if (W.IsReady() && Getslidervalue(miscMenu, "UseWWhen") == 0 &&
-                    (Q.IsReady() || Player.IsInAutoAttackRange(target)))
+                if ((Q.IsReady() || E.IsReady()))
                 {
-                    W.Cast();
+                    //CastRSmart(target);
+                    CastR(target);
                 }
 
-                if (Q.IsReady())
+                if (Player.IsInAutoAttackRange(target))
                 {
-                    Q.Cast(target);
+                    //CastRSmart(target);
+                    CastR(target);
                 }
+            }
 
-                if (E.IsReady())
-                {
-                    E.Cast(target);
-                }
+            if (W.IsReady() && Getslidervalue(miscMenu, "UseWWhen") == 0 &&
+                (Q.IsReady() || Player.IsInAutoAttackRange(target)))
+            {
+                W.Cast();
+            }
+
+            if (Q.IsReady())
+            {
+                Q.Cast(target);
+            }
+
+            if (E.IsReady())
+            {
+                E.Cast(target);
             }
         }
         public static void LaneMode()
