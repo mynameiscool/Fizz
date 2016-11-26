@@ -10,53 +10,43 @@ using EloBuddy.SDK.Constants;
 using SharpDX;
 using Color = System.Drawing.Color;
 
-namespace FishFishFish
+namespace Fizz_Farofakids
 {
-    internal class TheOner
+    internal class Program
     {
-        private static void Main(string[] args)
-        {
-            Loading.OnLoadingComplete += GameOnOnGameLoad;
-            CreateMenu();
-        }
-
         private static AIHeroClient Player
         {
             get { return ObjectManager.Player; }
         }
 
-        internal static bool Getcheckboxvalue(object miscMenu, string v)
-        {
-            throw new NotImplementedException();
-        }
-
-        internal static float getCheckBoxItem(object laneclearMenu, string v)
-        {
-            throw new NotImplementedException();
-        }
-
         public static Menu Menu { get; set; }
-        public static Vector3? LastHarassPos { get; set; }
-        public static AIHeroClient DrawTarget { get; set; }
-        public static Geometry.Polygon.Rectangle RRectangle { get; set; }
+        private static Vector3? LastHarassPos { get; set; }
+        private static AIHeroClient DrawTarget { get; set; }
+        private static Geometry.Polygon.Rectangle RRectangle { get; set; }
 
-        public static Spell.Targeted Q;
-        public static Spell.Active W;
-        public static Spell.Skillshot E, R;
+        private static Spell.Targeted Q;
+        private static Spell.Active W;
+        private static Spell.Skillshot E, R;
 
-        private static Menu comboMenu, harassMenu, laneclearMenu, miscMenu, drawMenu;
 
-        public static void CreateMenu()
+        private static void Main(string[] args)
         {
-            Menu = MainMenu.AddMenu("Fizz", "Fish Fish Fish");
+            Loading.OnLoadingComplete += GameOnOnGameLoad;
+        }
+
+        private static Menu comboMenu, harassMenu, miscMenu, drawMenu, laneclearMenu;
+
+        private static void CreateMenu()
+        {
+            Menu = MainMenu.AddMenu("Mynameiscool", "Fizz");
 
             comboMenu = Menu.AddSubMenu("Combo");
             comboMenu.Add("UseQCombo", new CheckBox("Use Q"));
             comboMenu.Add("UseWCombo", new CheckBox("Use W"));
             comboMenu.Add("UseECombo", new CheckBox("Use E"));
             comboMenu.Add("UseRCombo", new CheckBox("Use R"));
-            comboMenu.Add("QRCombo", new CheckBox("Use QR Combo"));
             comboMenu.Add("UseREGapclose", new CheckBox("Use R, then E for gapclose if killable"));
+            comboMenu.Add("QR", new CheckBox("UUse Q then R Target"));
 
             harassMenu = Menu.AddSubMenu("Harass");
             harassMenu.Add("UseQMixed", new CheckBox("UseQ"));
@@ -64,15 +54,15 @@ namespace FishFishFish
             harassMenu.Add("UseEMixed", new CheckBox("UseE"));
             StringList(harassMenu, "UseEHarassMode", "E Mode: ", new[] { "Back to Position", "On Enemy" }, 1);
 
+            miscMenu = Menu.AddSubMenu("Misc");
+            StringList(miscMenu, "UseWWhen", "Use W", new[] { "Before Q", "After Q" }, 0);
+            miscMenu.Add("UseETower", new CheckBox("Dodge tower shots with E"));
+
             laneclearMenu = Menu.AddSubMenu("Lane Clear");
             laneclearMenu.Add("UseQM", new CheckBox("UseQ"));
             laneclearMenu.Add("UseW", new CheckBox("UseW"));
             laneclearMenu.Add("UseE", new CheckBox("UseE"));
             laneclearMenu.Add("mana", new Slider("Maximum mana usage in percent)", 50));
-
-            miscMenu = Menu.AddSubMenu("Misc");
-            StringList(miscMenu, "UseWWhen", "Use W", new[] { "Before Q", "After Q" }, 0);
-            miscMenu.Add("UseETower", new CheckBox("Dodge tower shots with E"));
 
             drawMenu = Menu.AddSubMenu("Drawing");
             drawMenu.Add("DrawQ", new CheckBox("Draw Q"));
@@ -91,10 +81,6 @@ namespace FishFishFish
                     sender.DisplayName = displayName + ": " + values[args.NewValue];
                 };
         }
-        public static float LaneMana()
-        {
-            return laneclearMenu["laneclear"].Cast<Slider>().CurrentValue;
-        }
 
         private static bool Getcheckboxvalue(Menu menu, string menuvalue)
         {
@@ -110,16 +96,8 @@ namespace FishFishFish
         {
             return menu[menuvalue].Cast<Slider>().CurrentValue;
         }
-        static bool UseQ { get { return getCheckBoxItem(laneclearMenu, "useQ"); } }
-        static bool UseW { get { return getCheckBoxItem(laneclearMenu, "useW"); } }
-        static bool UseE { get { return getCheckBoxItem(laneclearMenu, "autoE"); } }
-        static bool UseR { get { return getCheckBoxItem(laneclearMenu, "useR"); } }
-        static bool ManaManager { get { return getCheckBoxItem(laneclearMenu, "manaManager"); } }
-        static bool getCheckBoxItem(Menu m, string item)
-        {
-            return m[item].Cast<CheckBox>().CurrentValue;
-        }
-        public static void GameOnOnGameLoad(EventArgs args)
+
+        private static void GameOnOnGameLoad(EventArgs args)
         {
             if (Player.ChampionName != "Fizz")
             {
@@ -139,8 +117,6 @@ namespace FishFishFish
             Game.OnUpdate += GameOnOnUpdate;
             Obj_AI_Base.OnProcessSpellCast += ObjAiBaseOnOnProcessSpellCast;
             Drawing.OnDraw += DrawingOnOnDraw;
-
-            Chat.Print("<font color=\"#7CFC00\"><b>Time to fish fish fish");
         }
 
         private static void DrawingOnOnDraw(EventArgs args)
@@ -257,8 +233,11 @@ namespace FishFishFish
                 case Orbwalker.ActiveModes.Combo:
                     DoCombo();
                     break;
+                case Orbwalker.ActiveModes.JungleClear:
+                    Jungleclear();
+                    break;
                 case Orbwalker.ActiveModes.LaneClear:
-                    LaneMode();
+                    Laneclear();
                     break;
             }
         }
@@ -304,95 +283,101 @@ namespace FishFishFish
                 W.Cast();
                 Q.Cast(target);
             }
-            else if (Q.IsReady() && R.IsReady() && Getcheckboxvalue(miscMenu, "QRCombo"))
+            else
             {
-                Q.Cast(target);
-                CastR(target);
-            }
-
-            if (R.IsReady())
-            {
-                if (Player.GetSpellDamage(target, SpellSlot.R) > target.Health)
+                if (R.IsReady())
                 {
-                    //CastRSmart(target);
-                    CastR(target);
+                    if (Player.GetSpellDamage(target, SpellSlot.R) > target.Health)
+                    {
+                        //CastRSmart(target);
+                        CastR(target);
+                    }
+
+                    if (DamageToUnit(target) > target.Health)
+                    {
+                        //CastRSmart(target);
+                        CastR(target);
+                    }
+
+                    if ((Q.IsReady() || E.IsReady()))
+                    {
+                        //CastRSmart(target);
+                        CastR(target);
+                    }
+
+                    if (Player.IsInAutoAttackRange(target))
+                    {
+                        //CastRSmart(target);
+                        CastR(target);
+                    }
                 }
 
-                if (DamageToUnit(target) > target.Health)
+                if (W.IsReady() && Getslidervalue(miscMenu, "UseWWhen") == 0 &&
+                    (Q.IsReady() || Player.IsInAutoAttackRange(target)))
                 {
-                    //CastRSmart(target);
-                    CastR(target);
+                    W.Cast();
                 }
 
-                if ((Q.IsReady() || E.IsReady()))
+                if (Q.IsReady())
                 {
-                    //CastRSmart(target);
-                    CastR(target);
+                    Q.Cast(target);
                 }
 
-                if (Player.IsInAutoAttackRange(target))
+                if (E.IsReady())
                 {
-                    //CastRSmart(target);
-                    CastR(target);
+                    E.Cast(target);
                 }
-            }
-
-            if (W.IsReady() && Getslidervalue(miscMenu, "UseWWhen") == 0 &&
-                (Q.IsReady() || Player.IsInAutoAttackRange(target)))
-            {
-                W.Cast();
-            }
-
-            if (Q.IsReady())
-            {
-                Q.Cast(target);
-            }
-
-            if (E.IsReady())
-            {
-                E.Cast(target);
             }
         }
-        public static void LaneMode()
+        private static void Jungleclear()
         {
-            if (Player.ManaPercent > getCheckBoxItem("laneclearMenu", "mana") && W.IsReady() && Getcheckboxvalue("laneclearMenuMenu", "UseQ"))
+            var Monsters = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, 1000f);
+
+            if (Monsters != null)
             {
-                var minion = EntityManager.MinionsAndMonsters.EnemyMinions.FirstOrDefault(m => m.IsValidTarget(W.Range) && Getcheckboxvalue("laneclearMenuMenu", "UseW"));
-                if (minion == null) return;
+                if (Q.IsLearned && Q.IsReady())
+                {
+
+                    foreach (var monster in Monsters.Where(x => !x.IsDead && x.IsValidTarget(Q.Range) && x.Health > 20))
+                    {
+                        Q.Cast(monster);
+                    }
+                    foreach (var monster in Monsters.Where(x => !x.IsDead && x.IsValidTarget(Q.Range) && x.Health > 30 &&
+                                                                    !x.Name.ToLower().Contains("mini")))
+                    {
+                        Q.Cast(monster);
+                    }
+                }
+            }
+
+            if (W.IsLearned && W.IsReady())
+            {
+                int count = Monsters.Where(x => x.IsValidTarget(Player.GetAutoAttackRange()))
+                                    .Count();
 
                 W.Cast();
             }
-            if (Player.ManaPercent > getCheckBoxItem("laneclearMenu", "mana") && Q.IsReady())
+
+            if (E.IsLearned && E.IsReady())
             {
-                var minion = EntityManager.MinionsAndMonsters.EnemyMinions.FirstOrDefault(m => m.IsValidTarget(Q.Range));
-                if (minion == null) return;
-
-                if (Q.IsInRange(minion) && minion.Health <= Player.GetSpellDamage(minion, Q.Slot))
-                    Q.Cast(minion);
-
-            }
-
-            if (Player.ManaPercent > getCheckBoxItem("laneclearMenu", "mana") && E.IsReady())
-            {
-                var minions = EntityManager.MinionsAndMonsters.GetLaneMinions()
-                    .Where(
-                    m => m.IsValidTarget(E.Range)).ToArray();
-                if (minions.Length == 0) return;
-
-                if (E.Name == "FizzJump")
+                var List = Monsters.Where(x => !x.IsDead && x.IsValidTarget(E.Range * 2));
+                Monsters.Where(x => !x.IsDead && x.IsValidTarget(E.Range * 2) && !x.Name.ToLower().Contains("mini"));
+                foreach (var monster in List)
                 {
-                    var castPos = Prediction.Position.PredictCircularMissileAoe(minions, E.Range, E.Width,
-                        E.CastDelay, E.Speed).OrderByDescending(r => r.GetCollisionObjects<Obj_AI_Minion>().Length).FirstOrDefault();
-
-                    if (castPos != null)
+                    if (monster.Distance(Player.Position) < 400)
                     {
-                        var predictMinion = castPos.GetCollisionObjects<Obj_AI_Minion>();
-
-                        E.Cast(castPos.CastPosition);
+                        E.Cast(monster.Position);
+                    }
+                    else
+                    {
+                        E.Cast(Player.Position.Extend(monster.Position, E.Range).To3D());
+                        E.Cast(monster.Position);
                     }
                 }
             }
         }
+
+
         public static bool CanKillWithUltCombo(AIHeroClient target)
         {
             return Player.GetSpellDamage(target, SpellSlot.Q) + Player.GetSpellDamage(target, SpellSlot.W) + Player.GetSpellDamage(target, SpellSlot.R) >
@@ -434,7 +419,20 @@ namespace FishFishFish
             }
         }
 
+        private static void Laneclear()
+        {
+            var minions = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.Position, W.Range).ToList();
+            if (minions != null)
+            {
+                if (Q.IsLearned && Q.IsReady())
+                {
+                    foreach (var minion in minions.Where(x => !x.IsDead && x.IsValidTarget(Q.Range) && x.Health > 20))
+                    {
+                        Q.Cast(minion);
+                    }
+                }
+                if (E.IsLearned && E.IsReady());
+            }
+        }
     }
-
-
 }
