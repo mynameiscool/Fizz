@@ -10,7 +10,7 @@ using EloBuddy.SDK.Constants;
 using SharpDX;
 using Color = System.Drawing.Color;
 
-namespace Fizz_Farofakids
+namespace Fizzy
 {
     internal class Program
     {
