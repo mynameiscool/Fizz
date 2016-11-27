@@ -46,7 +46,8 @@ namespace Fizzy
             comboMenu.Add("UseECombo", new CheckBox("Use E"));
             comboMenu.Add("UseRCombo", new CheckBox("Use R"));
             comboMenu.Add("UseREGapclose", new CheckBox("Use R, then E for gapclose if killable"));
-            comboMenu.Add("QR", new CheckBox("UUse Q then R Target"));
+            comboMenu.Add("QR", new CheckBox("Use Q then R Target"));
+            comboMenu.Add("ignite", new CheckBox("Use Ignite when killable"));
 
             harassMenu = Menu.AddSubMenu("Harass");
             harassMenu.Add("UseQMixed", new CheckBox("UseQ"));
@@ -332,7 +333,7 @@ namespace Fizzy
                 {
                     E.Cast(target);
                 }
-                if (Ignite != null && Getcheckboxvalue(comboMenu, "Use Ignite when killable") &&
+                if (Ignite != null && Getcheckboxvalue(comboMenu, "ignite") &&
                         Ignite.IsReady() &&
                         Player.GetSummonerSpellDamage(target, DamageLibrary.SummonerSpells.Ignite) >= target.TotalShieldHealth())
                 {
