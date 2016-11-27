@@ -27,7 +27,7 @@ namespace Fizzy
         private static Spell.Targeted Q;
         private static Spell.Active W;
         private static Spell.Skillshot E, R;
-
+        private static Spell.Targeted Ignite;
 
         private static void Main(string[] args)
         {
@@ -69,6 +69,11 @@ namespace Fizzy
             drawMenu.Add("DrawE", new CheckBox("Draw E"));
             drawMenu.Add("DrawR", new CheckBox("Draw R"));
             drawMenu.Add("DrawRPred", new CheckBox("Draw R Prediction"));
+            var slot = Player.GetSpellSlotFromName("summonerdot");
+            if (slot != SpellSlot.Unknown)
+            {
+                Ignite = new Spell.Targeted(slot, 600);
+            }
         }
 
         public static void StringList(Menu menu, string uniqueId, string displayName, string[] values, int defaultValue)
@@ -326,6 +331,12 @@ namespace Fizzy
                 if (E.IsReady())
                 {
                     E.Cast(target);
+                }
+                if (Ignite != null && Getcheckboxvalue(comboMenu, "Use Ignite when killable") &&
+                        Ignite.IsReady() &&
+                        Player.GetSummonerSpellDamage(target, DamageLibrary.SummonerSpells.Ignite) >= target.TotalShieldHealth())
+                {
+                    Ignite.Cast(target);
                 }
             }
         }

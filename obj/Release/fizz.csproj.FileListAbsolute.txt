@@ -3,3 +3,4 @@ C:\Users\Jeremy\Desktop\fizz\Fizz\bin\Release\FishFishFish.exe
 C:\Users\Jeremy\Desktop\fizz\Fizz\bin\Release\FishFishFish.pdb
 C:\Users\Jeremy\Desktop\fizz\Fizz\obj\Release\FishFishFish.exe
 C:\Users\Jeremy\Desktop\fizz\Fizz\obj\Release\FishFishFish.pdb
+C:\Users\Jeremy\Desktop\fizz\Fizz\obj\Release\fizz.csprojResolveAssemblyReference.cache
